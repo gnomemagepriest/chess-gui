@@ -10,7 +10,7 @@ private:
     int getCol();
     int getRow();
 public:
-    virtual ~Piece() {}
+    ~Piece() {}
     virtual bool isValidMove(sf::Vector2f newPosition) const = 0;
     void draw(sf::RenderWindow& window);
     sf::Vector2f getPosition();
