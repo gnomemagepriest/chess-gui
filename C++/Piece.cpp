@@ -1,4 +1,5 @@
 #include "Piece.h"
+#include <iostream>
 
 sf::Vector2f Piece::getPosition() {
 	return position;
@@ -6,17 +7,19 @@ sf::Vector2f Piece::getPosition() {
 
 void Piece::setPosition(sf::Vector2f newPosition) {
 	position = newPosition;
+	prevCol = getCol();
+	prevRow = getRow();
+	Sprite.setPosition(newPosition);
 }
 
 int Piece::getCol() {
-	return position.x / 100;
+	return static_cast<int>(this->position.x) / 100;
 }
 
 int Piece::getRow() {
-	return position.y / 100;
+	return static_cast<int>(this->position.y) / 100;
 }
 
 void Piece::draw(sf::RenderWindow& window) {
-	Sprite.setPosition(position);
 	window.draw(Sprite);
 }

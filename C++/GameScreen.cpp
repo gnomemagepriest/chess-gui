@@ -1,4 +1,6 @@
 #include "GameScreen.h"
+#include "Pawn.h"
+#include <iostream>
 
 void GameScreen::update(sf::Event event) {
     switch (event.type) {
@@ -24,7 +26,13 @@ GameScreen::GameScreen(sf::RenderWindow* mainWindow) {
     window = mainWindow;
     if (!window)
         throw 505;
-    //board.push_back(new Rook(0, 0));
+
+    board.push_back(new Pawn(0, sf::Vector2f(0.0f,0.0f)));
+    board.push_back(new Pawn(1, sf::Vector2f(100.0f, 100.0f)));
+    board.push_back(new Pawn(1, sf::Vector2f(200.0f, 100.0f)));
+    board.push_back(new Pawn(1, sf::Vector2f(300.0f, 100.0f)));
+    board.push_back(new Pawn(1, sf::Vector2f(100.0f, 400.0f)));
+    currentColor = 0;
 }
 
 GameScreen::~GameScreen() {
@@ -38,9 +46,10 @@ void GameScreen::handleMousePressed(const sf::Vector2f& mousePos) {
         return;
 
     for (auto piece : board) {
-        if (piece->color == currentColor
-            && piece->col == mousePos.x / 100
-            && piece->row == mousePos.y / 100) {
+        if (//piece->color == currentColor && 
+            piece->getCol() == static_cast<int>(mousePos.x) / 100
+            && piece->getRow() == static_cast<int>(mousePos.y) / 100) {
+            
             selectedPiece = piece;
             break;
         }
@@ -58,7 +67,7 @@ void GameScreen::handleMouseReleased(const sf::Vector2f& mousePos) {
     }
     else {
         selectedPiece->setPosition(sf::Vector2f(
-            selectedPiece->col * 100, selectedPiece->row * 100
+            selectedPiece->getCol() * 100, selectedPiece->getRow() * 100
         ));
     }
     isDragging = false;
