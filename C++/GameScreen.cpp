@@ -6,7 +6,7 @@ void GameScreen::update(sf::Event event) {
         handleMousePressed(sf::Vector2f(event.mouseButton.x, event.mouseButton.y));
         break;
     case sf::Event::MouseButtonReleased:
-        handleMouseReleased();
+        handleMouseReleased(sf::Vector2f(event.mouseButton.x, event.mouseButton.y));
         break;
     case sf::Event::MouseMoved:
         if (isDragging && selectedPiece) {
@@ -18,9 +18,12 @@ void GameScreen::update(sf::Event event) {
     }
 }
 
-GameScreen::GameScreen() {
+GameScreen::GameScreen(sf::RenderWindow* mainWindow) {
     selectedPiece = nullptr;
     isDragging = false;
+    window = mainWindow;
+    if (!window)
+        throw 505;
     //board.push_back(new Rook(0, 0));
 }
 
@@ -31,25 +34,48 @@ GameScreen::~GameScreen() {
 }
 
 void GameScreen::handleMousePressed(const sf::Vector2f& mousePos) {
+    if (selectedPiece)
+        return;
 
+    for (auto piece : board) {
+        if (piece->color == currentColor
+            && piece->col == mousePos.x / 100
+            && piece->row == mousePos.y / 100) {
+            selectedPiece = piece;
+            break;
+        }
+    }
 }
 
-void GameScreen::handleMouseReleased() {
+void GameScreen::handleMouseReleased(const sf::Vector2f& mousePos) {
+    if (!selectedPiece)
+        return;
 
+    if (selectedPiece->isValidMove(selectedPiece->getPosition())) {
+        selectedPiece->setPosition(sf::Vector2f(
+            static_cast<int>(mousePos.x / 100) * 100, static_cast<int>(mousePos.y / 100) * 100
+        ));
+    }
+    else {
+        selectedPiece->setPosition(sf::Vector2f(
+            selectedPiece->col * 100, selectedPiece->row * 100
+        ));
+    }
+    isDragging = false;
+    selectedPiece = nullptr;
 }
 
 void GameScreen::handleMouseMoved(const sf::Vector2f& mousePos) {
+    if (!selectedPiece)
+        return;
 
+    isDragging = true;
+    sf::Vector2f newPosition = static_cast<sf::Vector2f>(sf::Mouse::getPosition(*window));
+    selectedPiece->setPosition(newPosition);
 }
 
-void GameScreen::draw(sf::RenderWindow& window) {
+void GameScreen::draw() {
     for (auto piece : board) {
-        piece->draw(window);
-    }
-
-    if (selectedPiece) {
-        sf::Vector2f newPosition = static_cast<sf::Vector2f>(sf::Mouse::getPosition(window)) - offset;
-        selectedPiece->setPosition(newPosition);
-        selectedPiece->draw(window);
+        piece->draw(*window);
     }
 }

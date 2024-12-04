@@ -8,14 +8,15 @@ private:
 	Piece* selectedPiece;
 	std::vector<Piece*> board;
 	bool isDragging;
-	sf::Vector2f offset;
+	sf::RenderWindow* window;
+	int currentColor;
 	void handleMousePressed(const sf::Vector2f& mousePos);
-	void handleMouseReleased();
+	void handleMouseReleased(const sf::Vector2f& mousePos);
 	void handleMouseMoved(const sf::Vector2f& mousePos);
 public:
-	GameScreen();
+	GameScreen(sf::RenderWindow* mainWindow);
 	~GameScreen();
 	void update(sf::Event event);
-	void draw(sf::RenderWindow& window);
+	void draw();
 };
 

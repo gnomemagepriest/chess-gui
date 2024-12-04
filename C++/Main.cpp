@@ -5,7 +5,7 @@ int main()
 {
     sf::RenderWindow window(sf::VideoMode(800, 800), "Chess");
 
-    GameScreen gameScreen;
+    GameScreen gameScreen(&window);
 
     while (window.isOpen()) {
         sf::Event event;
@@ -16,7 +16,7 @@ int main()
         }
 
         window.clear();
-        gameScreen.draw(window);
+        gameScreen.draw();
         window.display();
     }
 
