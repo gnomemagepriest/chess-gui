@@ -3,7 +3,19 @@
 
 class Piece
 {
-	sf::Sprite Sprite;
-	int x, y;
+private:
+    sf::Sprite Sprite;
+    double prevCol, prevRow;
+    sf::Vector2f position;
+    int getCol();
+    int getRow();
+public:
+    virtual ~Piece() {}
+    virtual bool isValidMove(sf::Vector2f newPosition) const = 0;
+    void draw(sf::RenderWindow& window);
+    sf::Vector2f getPosition();
+    void setPosition(sf::Vector2f newPosition);   
+    int col = getCol(), row = getRow();
+    int color;
 };
 
