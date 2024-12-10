@@ -1,6 +1,6 @@
 #include "Knight.h"
 
-bool Knight::isValidMove(sf::Vector2f newPosition) const {
+bool Knight::isValidMove(int newCol, int newRow) const {
 	return true;
 }
 

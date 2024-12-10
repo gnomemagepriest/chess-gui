@@ -3,7 +3,7 @@
 #include <iostream>
 #include <filesystem>
 
-bool Pawn::isValidMove(sf::Vector2f newPosition) const {
+bool Pawn::isValidMove(int newCol, int newRow) const {
 	return true;
 }
 

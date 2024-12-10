@@ -1,6 +1,6 @@
 #include "Queen.h"
 
-bool Queen::isValidMove(sf::Vector2f newPosition) const {
+bool Queen::isValidMove(int newCol, int newRow) const {
 	return true;
 }
 

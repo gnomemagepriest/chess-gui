@@ -10,7 +10,7 @@ protected:
     double prevCol, prevRow;
 public:
     virtual ~Piece() {}
-    virtual bool isValidMove(sf::Vector2f newPosition) const = 0;
+    virtual bool isValidMove(int newCol, int newRow) const = 0;
     void draw(sf::RenderWindow& window);
     sf::Vector2f getPosition();
     void setPosition(sf::Vector2f newPosition);   

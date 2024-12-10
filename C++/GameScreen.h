@@ -12,6 +12,9 @@ private:
 	sf::Texture darkTexture, lightTexture;
 	sf::Sprite darkSquare, lightSquare;
 	int currentColor;
+	Piece* getPiece(int col, int row);
+	bool makeMove(int col, int row);
+	void takePiece(Piece* targetPiece);
 	void handleMousePressed(const sf::Vector2f& mousePos);
 	void handleMouseReleased(const sf::Vector2f& mousePos);
 	void handleMouseMoved(const sf::Vector2f& mousePos);

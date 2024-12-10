@@ -30,7 +30,7 @@ GameScreen::GameScreen(sf::RenderWindow* mainWindow) {
     isDragging = false;
     window = mainWindow;
     if (!window)
-        throw 505;
+        throw 1;
 
     board.push_back(new Pawn(0, sf::Vector2f(0.0f,0.0f)));
     board.push_back(new Rook(0, sf::Vector2f(100.0f, 100.0f)));
@@ -57,12 +57,47 @@ GameScreen::~GameScreen() {
     }
 }
 
+Piece* GameScreen::getPiece(int col, int row) {
+    for (auto piece : board) {
+        if (piece->getCol() == col && piece->getRow() == row)
+            return piece;
+    }
+
+    return nullptr;
+}
+
+bool GameScreen::makeMove(int col, int row) {
+    if (!selectedPiece)
+        return false;
+
+    if (!selectedPiece->isValidMove(col, row))
+        return false;
+
+    Piece* targetPiece = getPiece(col, row);
+    if (targetPiece == nullptr)
+        return true;
+
+    if (targetPiece == selectedPiece || targetPiece->color == selectedPiece->color)
+        return false;
+
+    takePiece(targetPiece);
+    return true;
+}
+
+void GameScreen::takePiece(Piece* targetPiece) {
+    board.erase(std::remove_if(
+        board.begin(),
+        board.end(),
+        [targetPiece](const Piece* p) { return p == targetPiece; }
+    ));
+}
+
 void GameScreen::handleMousePressed(const sf::Vector2f& mousePos) {
     if (selectedPiece)
         return;
 
     for (auto piece : board) {
-        if (//piece->color == currentColor && 
+        if (piece->color == currentColor && 
             piece->getCol() == static_cast<int>(mousePos.x) / 100
             && piece->getRow() == static_cast<int>(mousePos.y) / 100) {
             
@@ -76,15 +111,13 @@ void GameScreen::handleMouseReleased(const sf::Vector2f& mousePos) {
     if (!selectedPiece)
         return;
 
-    if (selectedPiece->isValidMove(selectedPiece->getPosition())) {
-        selectedPiece->setPosition(sf::Vector2f(
-            static_cast<int>(mousePos.x / 100) * 100, static_cast<int>(mousePos.y / 100) * 100
-        ));
-    }
-    else {
-        selectedPiece->setPosition(sf::Vector2f(
-            selectedPiece->getCol() * 100, selectedPiece->getRow() * 100
-        ));
+    int newCol = static_cast<int>(mousePos.x / 100);
+    int newRow = static_cast<int>(mousePos.y / 100);
+    bool moveApproved = false;
+    Piece* hittingPiece = getPiece(newCol, newRow);
+
+    if (makeMove(newCol, newRow)) {
+        selectedPiece->setPosition(sf::Vector2f(newCol*100, newRow*100));
     }
     isDragging = false;
     selectedPiece = nullptr;
@@ -95,8 +128,6 @@ void GameScreen::handleMouseMoved(const sf::Vector2f& mousePos) {
         return;
 
     isDragging = true;
-    sf::Vector2f newPosition = static_cast<sf::Vector2f>(sf::Mouse::getPosition(*window));
-    selectedPiece->setPosition(newPosition);
 }
 
 void GameScreen::draw() {

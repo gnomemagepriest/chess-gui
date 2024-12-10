@@ -1,6 +1,6 @@
 #include "Bishop.h"
 
-bool Bishop::isValidMove(sf::Vector2f newPosition) const {
+bool Bishop::isValidMove(int newCol, int newRow) const {
 	return true;
 }
 

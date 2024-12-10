@@ -1,6 +1,6 @@
 #include "Rook.h"
 
-bool Rook::isValidMove(sf::Vector2f newPosition) const {
+bool Rook::isValidMove(int newCol, int newRow) const {
 	return true;
 }
 
