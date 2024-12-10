@@ -6,7 +6,7 @@ bool Knight::isValidMove(sf::Vector2f newPosition) const {
 
 Knight::Knight(int newColor, sf::Vector2f newPosition) {
 	color = newColor;
-	std::string path = "Assets\\knight-";
+	std::string path = "../Assets/knight-";
 	if (!color)
 		path += "black.png";
 	else
@@ -14,8 +14,8 @@ Knight::Knight(int newColor, sf::Vector2f newPosition) {
 
 	try {
 		sf::Image image;
-		//image.loadFromFile(path);
-		image.create(100, 100, sf::Color(color * 255, color * 255, color * 255));
+		image.loadFromFile(path);
+		//image.create(100, 100, sf::Color(color * 255, color * 255, color * 255));
 		texture.loadFromImage(image);
 	}
 	catch (...) {

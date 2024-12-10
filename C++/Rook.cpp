@@ -6,7 +6,7 @@ bool Rook::isValidMove(sf::Vector2f newPosition) const {
 
 Rook::Rook(int newColor, sf::Vector2f newPosition) {
 	color = newColor;
-	std::string path = "Assets\\rook-";
+	std::string path = "../Assets/rook-";
 	if (!color)
 		path += "black.png";
 	else
@@ -14,8 +14,8 @@ Rook::Rook(int newColor, sf::Vector2f newPosition) {
 
 	try {
 		sf::Image image;
-		//image.loadFromFile(path);
-		image.create(100, 100, sf::Color(color * 255, color * 255, color * 255));
+		image.loadFromFile(path);
+		//image.create(100, 100, sf::Color(color * 255, color * 255, color * 255));
 		texture.loadFromImage(image);
 	}
 	catch (...) {

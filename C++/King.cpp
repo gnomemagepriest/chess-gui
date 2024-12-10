@@ -6,7 +6,7 @@ bool King::isValidMove(sf::Vector2f newPosition) const {
 
 King::King(int newColor, sf::Vector2f newPosition) {
 	color = newColor;
-	std::string path = "Assets\\king-";
+	std::string path = "../Assets/king-";
 	if (!color)
 		path += "black.png";
 	else
@@ -14,8 +14,8 @@ King::King(int newColor, sf::Vector2f newPosition) {
 
 	try {
 		sf::Image image;
-		//image.loadFromFile(path);
-		image.create(100, 100, sf::Color(color*255, color * 255, color * 255));
+		image.loadFromFile(path);
+		//image.create(100, 100, sf::Color(color*255, color * 255, color * 255));
 		texture.loadFromImage(image);
 	}
 	catch (...) {

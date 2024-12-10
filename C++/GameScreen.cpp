@@ -34,9 +34,9 @@ GameScreen::GameScreen(sf::RenderWindow* mainWindow) {
 
     board.push_back(new Pawn(0, sf::Vector2f(0.0f,0.0f)));
     board.push_back(new Rook(0, sf::Vector2f(100.0f, 100.0f)));
-    board.push_back(new Bishop(0, sf::Vector2f(200.0f, 200.0f)));
+    board.push_back(new Bishop(1, sf::Vector2f(200.0f, 200.0f)));
     board.push_back(new Queen(0, sf::Vector2f(300.0f, 0.300f)));
-    board.push_back(new Knight(0, sf::Vector2f(500.0f, 0.500f)));
+    board.push_back(new Knight(1, sf::Vector2f(500.0f, 0.500f)));
     board.push_back(new King(0, sf::Vector2f(400.0f, 0.400f)));
 
     sf::Image darkImage, lightImage;

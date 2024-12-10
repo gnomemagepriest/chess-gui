@@ -6,7 +6,7 @@ bool Queen::isValidMove(sf::Vector2f newPosition) const {
 
 Queen::Queen(int newColor, sf::Vector2f newPosition) {
 	color = newColor;
-	std::string path = "Assets\\queen-";
+	std::string path = "../Assets/queen-";
 	if (!color)
 		path += "black.png";
 	else
@@ -14,8 +14,8 @@ Queen::Queen(int newColor, sf::Vector2f newPosition) {
 
 	try {
 		sf::Image image;
-		//image.loadFromFile(path);
-		image.create(100, 100, sf::Color(color * 255, color * 255, color * 255));
+		image.loadFromFile(path);
+		//image.create(100, 100, sf::Color(color * 255, color * 255, color * 255));
 		texture.loadFromImage(image);
 	}
 	catch (...) {

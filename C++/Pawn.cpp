@@ -9,7 +9,7 @@ bool Pawn::isValidMove(sf::Vector2f newPosition) const {
 
 Pawn::Pawn(int newColor, sf::Vector2f newPosition) {
 	color = newColor;
-	std::string path = "Assets\\pawn-";
+	std::string path = "../Assets/pawn-";
 	if (!color)
 		path += "black.png";
 	else
@@ -17,8 +17,8 @@ Pawn::Pawn(int newColor, sf::Vector2f newPosition) {
 
 	try {
 		sf::Image image;
-		//image.loadFromFile(path);
-		image.create(100, 100, sf::Color(color * 255, color * 255, color * 255));
+		image.loadFromFile(path);
+		//image.create(100, 100, sf::Color(color * 255, color * 255, color * 255));
 		texture.loadFromImage(image);
 	}
 	catch (...) {
