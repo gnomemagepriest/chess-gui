@@ -1,11 +1,7 @@
 #include "Pawn.h"
 #include <string>
 #include <iostream>
-#include <filesystem>
-
-bool Pawn::isValidMove(int newCol, int newRow) const {
-	return true;
-}
+#include <filesystem>;
 
 Pawn::Pawn(int newColor, sf::Vector2f newPosition) {
 	color = newColor;
@@ -24,8 +20,14 @@ Pawn::Pawn(int newColor, sf::Vector2f newPosition) {
 	catch (...) {
 		throw 1;
 	}
+	
+	Type = "Pawn";
 
 	Sprite.setTexture(texture);
 	Sprite.setTextureRect(sf::IntRect(0, 0, 100, 100));
 	this->setPosition(newPosition);
+}
+
+bool Pawn::isValidMove(int newCol, int newRow) const {
+	return false;
 }

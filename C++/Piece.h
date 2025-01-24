@@ -8,6 +8,7 @@ protected:
     sf::Texture texture;
     sf::Vector2f position;
     double prevCol, prevRow;
+    std::string Type = "Piece";
 public:
     virtual ~Piece() {}
     virtual bool isValidMove(int newCol, int newRow) const = 0;
@@ -17,5 +18,6 @@ public:
     int getCol();
     int getRow();
     int color;
+    std::string getType();
 };
 

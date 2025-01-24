@@ -20,6 +20,10 @@ int Piece::getRow() {
 	return static_cast<int>(this->position.y) / 100;
 }
 
+std::string Piece::getType() {
+	return Type;
+}
+
 void Piece::draw(sf::RenderWindow& window) {
 	window.draw(Sprite);
 }

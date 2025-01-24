@@ -33,6 +33,8 @@ GameScreen::GameScreen(sf::RenderWindow* mainWindow) {
         throw 1;
 
     board.push_back(new Pawn(0, sf::Vector2f(0.0f,0.0f)));
+    board.push_back(new Pawn(1, sf::Vector2f(0.0f, 600.0f)));
+    board.push_back(new Pawn(1, sf::Vector2f(600.0f, 500.0f)));
     board.push_back(new Rook(0, sf::Vector2f(100.0f, 100.0f)));
     board.push_back(new Bishop(1, sf::Vector2f(200.0f, 200.0f)));
     board.push_back(new Queen(0, sf::Vector2f(300.0f, 0.300f)));
@@ -48,7 +50,7 @@ GameScreen::GameScreen(sf::RenderWindow* mainWindow) {
     lightTexture.loadFromImage(lightImage);
     lightSquare.setTexture(lightTexture);
     
-    currentColor = 0;
+    currentColor = 1;
     selectedPiece = nullptr;
     targetPiece = nullptr;
 }
@@ -89,6 +91,51 @@ bool GameScreen::canMakeMove(int col, int row) {
         return false;
 
     return true;
+}
+
+void GameScreen::movePawn(int newCol, int newRow) {
+    if (newCol < 0 || newCol > 7 || newRow < 0 || newRow > 7)
+        return;
+
+    int colorAdjust = currentColor ? -1 : 1;
+    int prevCol = selectedPiece->getCol();
+    int prevRow = selectedPiece->getRow();
+    bool firstMove = currentColor ? prevRow == 6: prevRow == 1 ;
+
+    if (std::abs(newCol - prevCol) > 1
+        || (currentColor ? prevRow <= newRow : prevRow >= newRow))
+        return;
+
+    Piece* hittingPiece = getPiece(newCol, newRow);
+
+    if (newCol == prevCol && newRow == prevRow + colorAdjust) {
+        if (hittingPiece != nullptr) {
+            return; // нету хода, если клетка занята
+        }
+    }
+
+    if (newCol == prevCol && newRow == prevRow + colorAdjust*2) {
+        if (!firstMove)
+            return;
+
+        if (hittingPiece != nullptr)
+            return;
+
+        if (getPiece(newCol, prevRow + colorAdjust) != nullptr)
+            return;
+    }
+
+    if ((newCol == prevCol - 1 || newCol == prevCol + 1) && newRow == prevRow + colorAdjust) {
+        if (hittingPiece == nullptr)
+            return;
+
+        if (hittingPiece->color == selectedPiece->color)
+            return;
+        takePiece(hittingPiece);
+    }
+
+    selectedPiece->setPosition(sf::Vector2f(newCol * 100, newRow * 100));
+    currentColor = !currentColor;
 }
 
 void GameScreen::takePiece(Piece* targetPiece) {
@@ -202,13 +249,16 @@ void GameScreen::handleMouseReleased(const sf::Vector2f& mousePos) {
     int newCol = static_cast<int>(mousePos.x / 100);
     int newRow = static_cast<int>(mousePos.y / 100);
     bool moveApproved = false;
-    Piece* hittingPiece = getPiece(newCol, newRow);
 
-    if (canMakeMove(newCol, newRow)) {
+    if (selectedPiece->getType() == "Pawn") {
+        movePawn(newCol, newRow);
+    }
+    else if (canMakeMove(newCol, newRow)) {
         takePiece(targetPiece);
         selectedPiece->setPosition(sf::Vector2f(newCol*100, newRow*100));
         currentColor = !currentColor;
     }
+
     isDragging = false;
     selectedPiece = nullptr;
 }
