@@ -16,6 +16,7 @@ private:
 	Piece* getPiece(int col, int row);
 	bool canMakeMove(int col, int row);
 	bool pieceOnAStraightLine(int newCol, int newRow);
+	bool pieceOnADiagonalLine(int newCol, int newRow);
 	void takePiece(Piece* targetPiece);
 	void handleMousePressed(const sf::Vector2f& mousePos);
 	void handleMouseReleased(const sf::Vector2f& mousePos);

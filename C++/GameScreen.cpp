@@ -78,6 +78,9 @@ bool GameScreen::canMakeMove(int col, int row) {
     if (pieceOnAStraightLine(col, row))
         return false;
 
+    if (pieceOnADiagonalLine(col, row))
+        return false;
+
     targetPiece = getPiece(col, row);
     if (targetPiece == nullptr)
         return true;
@@ -130,6 +133,53 @@ bool GameScreen::pieceOnAStraightLine(int newCol, int newRow) {
     return false;
 }
 
+bool GameScreen::pieceOnADiagonalLine(int newCol, int newRow) {
+    if (selectedPiece == nullptr)
+        return false;
+
+    int prevCol = selectedPiece->getCol();
+    int prevRow = selectedPiece->getRow();
+
+    if (newRow < prevRow) {
+        // Влево вверх
+        for (int col = prevCol - 1; col > newCol; col--) {
+            int diff = std::abs(col - prevCol);
+            for (auto piece : board)
+                if (piece->getCol() == col && piece->getRow() == prevRow - diff)
+                    return true;
+        }
+
+        // Вправо вверх
+        for (int col = prevCol + 1; col < newCol; col++) {
+            int diff = std::abs(col - prevCol);
+            for (auto piece : board)
+                if (piece->getCol() == col && piece->getRow() == prevRow - diff)
+                    return true;
+        }
+
+    }
+    else if (newRow > prevRow) {
+        // Влево вниз
+        for (int col = prevCol - 1; col > newCol; col--) {
+            int diff = std::abs(col - prevCol);
+            for (auto piece : board)
+                if (piece->getCol() == col && piece->getRow() == prevRow + diff)
+                    return true;
+        }
+
+        // Вправо вниз
+        for (int col = prevCol + 1; col < newCol; col++) {
+            int diff = std::abs(col - prevCol);
+            for (auto piece : board)
+                if (piece->getCol() == col && piece->getRow() == prevRow + diff)
+                    return true;
+        }
+
+    }
+
+    return false;
+}
+
 void GameScreen::handleMousePressed(const sf::Vector2f& mousePos) {
     if (selectedPiece)
         return;
@@ -157,6 +207,7 @@ void GameScreen::handleMouseReleased(const sf::Vector2f& mousePos) {
     if (canMakeMove(newCol, newRow)) {
         takePiece(targetPiece);
         selectedPiece->setPosition(sf::Vector2f(newCol*100, newRow*100));
+        currentColor = !currentColor;
     }
     isDragging = false;
     selectedPiece = nullptr;

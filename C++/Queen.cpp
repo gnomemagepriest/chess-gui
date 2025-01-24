@@ -1,7 +1,13 @@
 #include "Queen.h"
 
 bool Queen::isValidMove(int newCol, int newRow) const {
-	return true;
+	if ((newCol >= 0 && newCol <= 7 && newRow >= 0 && newRow <= 7)
+		&& (std::abs(newCol - prevCol) == std::abs(newRow - prevRow))
+		|| (prevCol == newCol || prevRow == newRow)) {
+		return true;
+	}
+
+	return false;
 }
 
 Queen::Queen(int newColor, sf::Vector2f newPosition) {
