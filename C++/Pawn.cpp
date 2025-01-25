@@ -29,5 +29,18 @@ Pawn::Pawn(int newColor, sf::Vector2f newPosition) {
 }
 
 bool Pawn::isValidMove(int newCol, int newRow) const {
-	return false;
+    if (newCol < 0 || newCol > 7 || newRow < 0 || newRow > 7)
+        return false;
+
+    int colorAdjust = color ? -1 : 1;
+
+    if (std::abs(newCol - prevCol) > 1
+        || (color ? prevRow <= newRow : prevRow >= newRow))
+        return false;
+
+	if (!(prevRow - newRow == colorAdjust)) {
+		return false;
+	}
+
+	return true;
 }

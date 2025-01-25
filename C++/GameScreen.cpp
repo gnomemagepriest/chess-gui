@@ -311,6 +311,21 @@ bool GameScreen::pieceOnADiagonalLine(int newCol, int newRow) {
     return false;
 }
 
+bool GameScreen::kingIllegalMoveDetected(int newCol, int newRow) {
+    King* originalSelectedPiece = (King*)selectedPiece;
+
+    for (auto piece : board) {
+        selectedPiece = piece;
+        if (piece->color != currentColor && canMakeMove(newCol, newRow)) {
+            selectedPiece = originalSelectedPiece;
+            return true;
+        }
+    }
+
+    selectedPiece = originalSelectedPiece;
+    return false;
+}
+
 void GameScreen::handleMousePressed(const sf::Vector2f& mousePos) {
     if (selectedPiece)
         return;
@@ -332,6 +347,10 @@ void GameScreen::handleMouseReleased(const sf::Vector2f& mousePos) {
 
     int newCol = static_cast<int>(mousePos.x / 100);
     int newRow = static_cast<int>(mousePos.y / 100);
+
+    if (selectedPiece->getType() == "King" && kingIllegalMoveDetected(newCol, newRow)) {
+        return;
+    }
 
     if (selectedPiece->getType() == "Pawn") {
         movePawn(newCol, newRow);

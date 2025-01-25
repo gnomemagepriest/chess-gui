@@ -19,6 +19,7 @@ private:
 	bool handleCastling(int newCol, int newRow);
 	bool pieceOnAStraightLine(int newCol, int newRow);
 	bool pieceOnADiagonalLine(int newCol, int newRow);
+	bool kingIllegalMoveDetected(int newCol, int newRow);
 	void takePiece(Piece* targetPiece);
 	void handleMousePressed(const sf::Vector2f& mousePos);
 	void handleMouseReleased(const sf::Vector2f& mousePos);
