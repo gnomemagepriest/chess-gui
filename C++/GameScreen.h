@@ -12,7 +12,10 @@ private:
 	sf::RenderWindow* window;
 	sf::Texture darkTexture, lightTexture;
 	sf::Sprite darkSquare, lightSquare;
+	sf::Font font;
+	sf::Text currentPlayerText;
 	int currentColor;
+	void updateCurrentPlayerText();
 	Piece* getPiece(int col, int row);
 	bool canMakeMove(int col, int row);
 	bool movePawn(int newCol, int newRow);

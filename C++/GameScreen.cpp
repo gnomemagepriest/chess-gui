@@ -31,6 +31,17 @@ GameScreen::GameScreen(sf::RenderWindow* mainWindow) {
     window = mainWindow;
     if (!window)
         throw 1;
+
+    // Загрузка шрифта
+    if (!font.loadFromFile("../Assets/arialmt.ttf")) {
+        throw std::runtime_error("Не удалось загрузить шрифт");
+    }
+
+    currentPlayerText.setFont(font);
+    currentPlayerText.setCharacterSize(24);
+    currentPlayerText.setFillColor(sf::Color::White);
+    currentPlayerText.setPosition(10, 10);
+    updateCurrentPlayerText();
     
     // Пешки
     board.push_back(new Pawn(0, sf::Vector2f(0.0f,100.0f)));
@@ -91,6 +102,15 @@ GameScreen::GameScreen(sf::RenderWindow* mainWindow) {
 GameScreen::~GameScreen() {
     for (auto piece : board) {
         delete piece;
+    }
+}
+
+void GameScreen::updateCurrentPlayerText() {
+    if (currentColor == 0) {
+        currentPlayerText.setString("Ход белых");
+    }
+    else {
+        currentPlayerText.setString("Ход черных");
     }
 }
 
@@ -204,6 +224,7 @@ bool GameScreen::movePawn(int newCol, int newRow) {
     }
 
     currentColor = !currentColor;
+    updateCurrentPlayerText();
     return true;
 }
 
@@ -249,6 +270,7 @@ bool GameScreen::handleCastling(int newCol, int newRow) {
 
     selectedPiece->setPosition(sf::Vector2f(newCol*100, newRow*100));
     currentColor = !currentColor;
+    updateCurrentPlayerText();
     return true;
 }
 
@@ -459,6 +481,7 @@ void GameScreen::handleMouseReleased(const sf::Vector2f& mousePos) {
                 takePiece(targetPiece);
                 selectedPiece->setPosition(sf::Vector2f(newCol * 100, newRow * 100));
                 currentColor = !currentColor;
+                updateCurrentPlayerText();
             }
         }
     }
@@ -466,6 +489,7 @@ void GameScreen::handleMouseReleased(const sf::Vector2f& mousePos) {
         takePiece(targetPiece);
         selectedPiece->setPosition(sf::Vector2f(newCol*100, newRow*100));
         currentColor = !currentColor;
+        updateCurrentPlayerText();
     }
 
     if (isKingInCheck()) {
@@ -492,6 +516,7 @@ void GameScreen::draw() {
     for (auto piece : board) {
         piece->draw(*window);
     }
+    window->draw(currentPlayerText);
 }
 
 void GameScreen::drawBoard() {
