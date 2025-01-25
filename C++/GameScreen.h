@@ -16,6 +16,7 @@ private:
 	Piece* getPiece(int col, int row);
 	bool canMakeMove(int col, int row);
 	void movePawn(int newCol, int newRow);
+	bool handleCastling(int newCol, int newRow);
 	bool pieceOnAStraightLine(int newCol, int newRow);
 	bool pieceOnADiagonalLine(int newCol, int newRow);
 	void takePiece(Piece* targetPiece);

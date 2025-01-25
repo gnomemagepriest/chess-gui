@@ -10,6 +10,7 @@ void Piece::setPosition(sf::Vector2f newPosition) {
 	prevCol = getCol();
 	prevRow = getRow();
 	Sprite.setPosition(newPosition);
+	timesPositionSet++;
 }
 
 int Piece::getCol() {
@@ -26,4 +27,8 @@ std::string Piece::getType() {
 
 void Piece::draw(sf::RenderWindow& window) {
 	window.draw(Sprite);
+}
+
+bool Piece::isFirstMove() {
+	return timesPositionSet == 1;
 }

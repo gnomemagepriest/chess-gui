@@ -31,15 +31,48 @@ GameScreen::GameScreen(sf::RenderWindow* mainWindow) {
     window = mainWindow;
     if (!window)
         throw 1;
+    
+    // Пешки
+    board.push_back(new Pawn(0, sf::Vector2f(0.0f,100.0f)));
+    board.push_back(new Pawn(0, sf::Vector2f(100.0f, 100.0f)));
+    board.push_back(new Pawn(0, sf::Vector2f(200.0f, 100.0f)));
+    board.push_back(new Pawn(0, sf::Vector2f(300.0f, 100.0f)));
+    board.push_back(new Pawn(0, sf::Vector2f(400.0f, 100.0f)));
+    board.push_back(new Pawn(0, sf::Vector2f(500.0f, 100.0f)));
+    board.push_back(new Pawn(0, sf::Vector2f(600.0f, 100.0f)));
+    board.push_back(new Pawn(0, sf::Vector2f(700.0f, 100.0f)));
+    board.push_back(new Pawn(1, sf::Vector2f(00.0f, 600.0f)));
+    board.push_back(new Pawn(1, sf::Vector2f(100.0f, 600.0f)));
+    board.push_back(new Pawn(1, sf::Vector2f(200.0f, 600.0f)));
+    board.push_back(new Pawn(1, sf::Vector2f(300.0f, 600.0f)));
+    board.push_back(new Pawn(1, sf::Vector2f(400.0f, 600.0f)));
+    board.push_back(new Pawn(1, sf::Vector2f(500.0f, 600.0f)));
+    board.push_back(new Pawn(1, sf::Vector2f(600.0f, 600.0f)));
+    board.push_back(new Pawn(1, sf::Vector2f(700.0f, 600.0f)));
 
-    board.push_back(new Pawn(0, sf::Vector2f(0.0f,0.0f)));
-    board.push_back(new Pawn(1, sf::Vector2f(0.0f, 600.0f)));
-    board.push_back(new Pawn(1, sf::Vector2f(600.0f, 500.0f)));
-    board.push_back(new Rook(0, sf::Vector2f(100.0f, 100.0f)));
-    board.push_back(new Bishop(1, sf::Vector2f(200.0f, 200.0f)));
-    board.push_back(new Queen(0, sf::Vector2f(300.0f, 0.300f)));
-    board.push_back(new Knight(1, sf::Vector2f(500.0f, 0.500f)));
-    board.push_back(new King(0, sf::Vector2f(400.0f, 0.400f)));
+    // Ладьи
+    board.push_back(new Rook(0, sf::Vector2f(0.0f, 0.0f)));
+    board.push_back(new Rook(0, sf::Vector2f(700.0f, 0.0f)));
+    board.push_back(new Rook(1, sf::Vector2f(0.0f, 700.0f)));
+    board.push_back(new Rook(1, sf::Vector2f(700.0f, 700.0f)));
+
+    // Ферзи и короли
+    board.push_back(new Queen(0, sf::Vector2f(300.0f, 0.00f)));
+    board.push_back(new King(0, sf::Vector2f(400.0f, 0.00f)));
+    board.push_back(new Queen(1, sf::Vector2f(300.0f, 700.00f)));
+    board.push_back(new King(1, sf::Vector2f(400.0f, 700.00f)));
+
+    // Кони
+    board.push_back(new Knight(0, sf::Vector2f(100.0f, 0.0f)));
+    board.push_back(new Knight(0, sf::Vector2f(600.0f, 0.0f)));
+    board.push_back(new Knight(1, sf::Vector2f(100.0f, 700.0f)));
+    board.push_back(new Knight(1, sf::Vector2f(600.0f, 700.0f)));
+
+    // Слоны
+    board.push_back(new Bishop(0, sf::Vector2f(200.0f, 0.0f)));
+    board.push_back(new Bishop(0, sf::Vector2f(500.0f, 0.0f)));
+    board.push_back(new Bishop(1, sf::Vector2f(200.0f, 700.0f)));
+    board.push_back(new Bishop(1, sf::Vector2f(500.0f, 700.0f)));
 
     sf::Image darkImage, lightImage;
     darkImage.create(100, 100, sf::Color(115, 86, 78));
@@ -138,6 +171,51 @@ void GameScreen::movePawn(int newCol, int newRow) {
     currentColor = !currentColor;
 }
 
+bool GameScreen::handleCastling(int newCol, int newRow) {
+    int prevCol = selectedPiece->getCol();
+    int prevRow = selectedPiece->getRow();
+    Piece* castlingPiece = nullptr;
+
+    // Вправо
+    if (newCol == (prevCol + 2) && newRow == prevRow && !pieceOnAStraightLine(newCol, newRow)) {
+        for (auto piece : board) {
+            if (piece->getCol() == (newCol + 1) && piece->getRow() == (newRow) && piece->isFirstMove()) {
+                castlingPiece = piece;
+                break;
+            }
+        }
+    }
+
+    // Влево
+    if (newCol == (prevCol - 2) && newRow == prevRow && !pieceOnAStraightLine(newCol-1, newRow)) {
+        for (auto piece : board) {
+            if (piece->getCol() == (newCol - 2) && piece->getRow() == (newRow) && piece->isFirstMove()) {
+                castlingPiece = piece;
+                break;
+            }
+        }
+    }
+
+    // Собственно ход
+    if (castlingPiece == nullptr) {
+        return false;
+    }
+
+    if (castlingPiece->getCol() == 0) {
+        castlingPiece->setPosition(sf::Vector2f(
+            (castlingPiece->getCol()+3)*100, 
+            castlingPiece->getRow()*100));
+    } else if (castlingPiece->getCol() == 7) {
+        castlingPiece->setPosition(sf::Vector2f(
+            (castlingPiece->getCol() - 2) * 100,
+            castlingPiece->getRow()*100));
+    }
+
+    selectedPiece->setPosition(sf::Vector2f(newCol*100, newRow*100));
+    currentColor = !currentColor;
+    return true;
+}
+
 void GameScreen::takePiece(Piece* targetPiece) {
     if (targetPiece == nullptr)
         return;
@@ -153,29 +231,32 @@ bool GameScreen::pieceOnAStraightLine(int newCol, int newRow) {
     if (selectedPiece == nullptr)
         return false;
 
-    // при движении влево
-    for (int col = selectedPiece->getCol()-1; col > newCol; col--)
-        for (auto piece : board)
-            if (piece->getCol() == col && piece->getRow() == newRow)
-                return true;
+    if (selectedPiece->getRow() == newRow) {
+        // при движении влево
+        for (int col = selectedPiece->getCol() - 1; col > newCol; col--)
+            for (auto piece : board)
+                if (piece->getCol() == col && piece->getRow() == newRow)
+                    return true;
 
-    // при движении вправо
-    for (int col = selectedPiece->getCol()+1; col < newCol; col++)
-        for (auto piece : board)
-            if (piece->getCol() == col && piece->getRow() == newRow)
-                return true;
+        // при движении вправо
+        for (int col = selectedPiece->getCol() + 1; col < newCol; col++)
+            for (auto piece : board)
+                if (piece->getCol() == col && piece->getRow() == newRow)
+                    return true;
+    }
+    else if (selectedPiece->getCol() == newCol) {
+        // при движении вверх
+        for (int row = selectedPiece->getRow() - 1; row > newRow; row--)
+            for (auto piece : board)
+                if (piece->getRow() == row && piece->getCol() == newCol)
+                    return true;
 
-    // при движении вверх
-    for (int row = selectedPiece->getRow()-1; row > newRow; row--)
-        for (auto piece : board)
-            if (piece->getRow() == row && piece->getCol() == newCol)
-                return true;
-
-    // при движении вниз
-    for (int row = selectedPiece->getRow()+1; row < newRow; row++)
-        for (auto piece : board)
-            if (piece->getCol() == newCol && piece->getRow() == row)
-                return true;
+        // при движении вниз
+        for (int row = selectedPiece->getRow() + 1; row < newRow; row++)
+            for (auto piece : board)
+                if (piece->getCol() == newCol && piece->getRow() == row)
+                    return true;
+    }
 
     return false;
 }
@@ -187,41 +268,44 @@ bool GameScreen::pieceOnADiagonalLine(int newCol, int newRow) {
     int prevCol = selectedPiece->getCol();
     int prevRow = selectedPiece->getRow();
 
-    if (newRow < prevRow) {
-        // Влево вверх
-        for (int col = prevCol - 1; col > newCol; col--) {
-            int diff = std::abs(col - prevCol);
-            for (auto piece : board)
-                if (piece->getCol() == col && piece->getRow() == prevRow - diff)
-                    return true;
-        }
+    if (prevCol == newCol || prevRow == newRow) {
 
-        // Вправо вверх
-        for (int col = prevCol + 1; col < newCol; col++) {
-            int diff = std::abs(col - prevCol);
-            for (auto piece : board)
-                if (piece->getCol() == col && piece->getRow() == prevRow - diff)
-                    return true;
-        }
+        if (newRow < prevRow) {
+            // Влево вверх
+            for (int col = prevCol - 1; col > newCol; col--) {
+                int diff = std::abs(col - prevCol);
+                for (auto piece : board)
+                    if (piece->getCol() == col && piece->getRow() == prevRow - diff)
+                        return true;
+            }
 
-    }
-    else if (newRow > prevRow) {
-        // Влево вниз
-        for (int col = prevCol - 1; col > newCol; col--) {
-            int diff = std::abs(col - prevCol);
-            for (auto piece : board)
-                if (piece->getCol() == col && piece->getRow() == prevRow + diff)
-                    return true;
-        }
+            // Вправо вверх
+            for (int col = prevCol + 1; col < newCol; col++) {
+                int diff = std::abs(col - prevCol);
+                for (auto piece : board)
+                    if (piece->getCol() == col && piece->getRow() == prevRow - diff)
+                        return true;
+            }
 
-        // Вправо вниз
-        for (int col = prevCol + 1; col < newCol; col++) {
-            int diff = std::abs(col - prevCol);
-            for (auto piece : board)
-                if (piece->getCol() == col && piece->getRow() == prevRow + diff)
-                    return true;
         }
+        else if (newRow > prevRow) {
+            // Влево вниз
+            for (int col = prevCol - 1; col > newCol; col--) {
+                int diff = std::abs(col - prevCol);
+                for (auto piece : board)
+                    if (piece->getCol() == col && piece->getRow() == prevRow + diff)
+                        return true;
+            }
 
+            // Вправо вниз
+            for (int col = prevCol + 1; col < newCol; col++) {
+                int diff = std::abs(col - prevCol);
+                for (auto piece : board)
+                    if (piece->getCol() == col && piece->getRow() == prevRow + diff)
+                        return true;
+            }
+
+        }
     }
 
     return false;
@@ -248,10 +332,18 @@ void GameScreen::handleMouseReleased(const sf::Vector2f& mousePos) {
 
     int newCol = static_cast<int>(mousePos.x / 100);
     int newRow = static_cast<int>(mousePos.y / 100);
-    bool moveApproved = false;
 
     if (selectedPiece->getType() == "Pawn") {
         movePawn(newCol, newRow);
+    }
+    else if (selectedPiece->getType() == "King" && selectedPiece->isFirstMove()) {
+        if (!handleCastling(newCol, newRow)) {
+            if (canMakeMove(newCol, newRow)) {
+                takePiece(targetPiece);
+                selectedPiece->setPosition(sf::Vector2f(newCol * 100, newRow * 100));
+                currentColor = !currentColor;
+            }
+        }
     }
     else if (canMakeMove(newCol, newRow)) {
         takePiece(targetPiece);

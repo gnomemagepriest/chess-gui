@@ -19,6 +19,8 @@ King::King(int newColor, sf::Vector2f newPosition) {
 		throw 1;
 	}
 
+	Type = "King";
+
 	Sprite.setTexture(texture);
 	Sprite.setTextureRect(sf::IntRect(0, 0, 100, 100));
 	this->setPosition(newPosition);
