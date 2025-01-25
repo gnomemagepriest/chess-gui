@@ -9,7 +9,6 @@ private:
 	Piece* targetPiece;
 	std::vector<Piece*> board;
 	bool isDragging;
-	bool isCheckmate;
 	sf::RenderWindow* window;
 	sf::Texture darkTexture, lightTexture;
 	sf::Sprite darkSquare, lightSquare;
@@ -22,6 +21,7 @@ private:
 	bool pieceOnADiagonalLine(int newCol, int newRow);
 	bool kingIllegalMoveDetected(int newCol, int newRow);
 	bool isKingInCheck();
+	bool isCheckmate();
 	void takePiece(Piece* targetPiece);
 	void handleMousePressed(const sf::Vector2f& mousePos);
 	void handleMouseReleased(const sf::Vector2f& mousePos);

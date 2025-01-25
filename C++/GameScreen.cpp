@@ -366,6 +366,41 @@ bool GameScreen::isKingInCheck() {
     return false;
 }
 
+bool GameScreen::isCheckmate() {
+    if (!isKingInCheck()) return false; // Если нет шаха, то и мата быть не может
+
+    
+    for (auto piece : board) {
+        if (piece->color != currentColor)
+            continue;
+
+        int originalCol = piece->getCol();
+        int originalRow = piece->getRow();
+        sf::Vector2f originalPosition = piece->getPosition();
+        selectedPiece = piece;
+
+        for (int col = 0; col < 8; col++) {
+            for (int row = 0; row < 8; row++) {
+                if (!canMakeMove(col, row))
+                    continue;
+
+                Piece* target = getPiece(col, row);
+                selectedPiece->setPosition(sf::Vector2f(col * 100, row * 100));
+                if (target) board.erase(std::remove(board.begin(), board.end(), target), board.end());
+
+                bool stillInCheck = isKingInCheck();
+
+                selectedPiece->setPosition(originalPosition);
+                if (target) board.push_back(target);
+
+                if (!stillInCheck) return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 void GameScreen::handleMousePressed(const sf::Vector2f& mousePos) {
     if (selectedPiece)
         return;
@@ -408,6 +443,14 @@ void GameScreen::handleMouseReleased(const sf::Vector2f& mousePos) {
         takePiece(targetPiece);
         selectedPiece->setPosition(sf::Vector2f(newCol*100, newRow*100));
         currentColor = !currentColor;
+    }
+
+    if (isKingInCheck()) {
+        std::cout << "Check for king:  " << (currentColor ? "black" : "white") << "!\n";
+    }
+
+    if (isCheckmate()) {
+        std::cout << "Мат! Победили " << (currentColor ? "чёрные" : "белые") << "!\n";
     }
 
     isDragging = false;
