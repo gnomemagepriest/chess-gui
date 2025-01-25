@@ -178,9 +178,32 @@ bool GameScreen::movePawn(int newCol, int newRow) {
         takePiece(hittingPiece);
     }
 
-    selectedPiece->setPosition(sf::Vector2f(newCol * 100, newRow * 100));
-    currentColor = !currentColor;
+    // Временное выполнение хода
+    sf::Vector2f originalPosition = selectedPiece->getPosition();
+    Piece* originalTarget = hittingPiece;
 
+    selectedPiece->setPosition(sf::Vector2f(newCol * 100, newRow * 100));
+    if (hittingPiece) takePiece(hittingPiece);
+
+    // Проверка на шах
+    bool kingInCheck = isKingInCheck();
+
+    // Откат изменений
+    selectedPiece->setPosition(originalPosition);
+    if (originalTarget) board.push_back(originalTarget);
+
+    if (kingInCheck) return false; // Ход недопустим, если король остается под шахом
+
+    selectedPiece->setPosition(sf::Vector2f(newCol * 100, newRow * 100));
+    if (hittingPiece) takePiece(hittingPiece);
+
+    // Превращение пешки
+    if ((currentColor == 0 && newRow == 7) || (currentColor == 1 && newRow == 0)) {
+        board.erase(std::remove(board.begin(), board.end(), selectedPiece), board.end());
+        board.push_back(new Queen(currentColor, sf::Vector2f(newCol * 100, newRow * 100)));
+    }
+
+    currentColor = !currentColor;
     return true;
 }
 
