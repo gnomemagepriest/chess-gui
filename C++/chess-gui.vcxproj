@@ -137,7 +137,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Bishop.cpp" />
-    <ClCompile Include="Board.cpp" />
     <ClCompile Include="GameScreen.cpp" />
     <ClCompile Include="King.cpp" />
     <ClCompile Include="Knight.cpp" />
@@ -149,7 +148,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bishop.h" />
-    <ClInclude Include="Board.h" />
     <ClInclude Include="GameScreen.h" />
     <ClInclude Include="King.h" />
     <ClInclude Include="Knight.h" />

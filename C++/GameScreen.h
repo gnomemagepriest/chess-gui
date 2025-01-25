@@ -17,12 +17,11 @@ private:
 	int currentColor;
 	void updateCurrentPlayerText();
 	Piece* getPiece(int col, int row);
-	bool canMakeMove(int col, int row);
+	bool canMakeMove(Piece* piece, int col, int row);
 	bool movePawn(int newCol, int newRow);
 	bool handleCastling(int newCol, int newRow);
-	bool pieceOnAStraightLine(int newCol, int newRow);
-	bool pieceOnADiagonalLine(int newCol, int newRow);
-	bool kingIllegalMoveDetected(int newCol, int newRow);
+	bool pieceOnAStraightLine(Piece* currentPiece, int newCol, int newRow);
+	bool pieceOnADiagonalLine(Piece* currentPiece, int newCol, int newRow);
 	bool isKingInCheck();
 	bool isCheckmate();
 	void takePiece(Piece* targetPiece);
@@ -35,5 +34,7 @@ public:
 	~GameScreen();
 	void update(sf::Event event);
 	void draw();
+	bool isGameOver;
+	std::string getEndGameMessage();
 };
 

@@ -20,6 +20,10 @@ void GameScreen::update(sf::Event event) {
             handleMouseMoved(sf::Vector2f(event.mouseMove.x, event.mouseMove.y));
         }
         break;
+    case sf::Event::KeyPressed:
+        if (event.key.code == sf::Keyboard::Q)
+            isGameOver = true;
+        break;
     default:
         break;
     }
@@ -32,9 +36,11 @@ GameScreen::GameScreen(sf::RenderWindow* mainWindow) {
     if (!window)
         throw 1;
 
+    currentColor = 1;
+
     // Загрузка шрифта
     if (!font.loadFromFile("../Assets/arialmt.ttf")) {
-        throw std::runtime_error("Не удалось загрузить шрифт");
+        throw std::runtime_error("Couldn'l load font");
     }
 
     currentPlayerText.setFont(font);
@@ -94,7 +100,6 @@ GameScreen::GameScreen(sf::RenderWindow* mainWindow) {
     lightTexture.loadFromImage(lightImage);
     lightSquare.setTexture(lightTexture);
     
-    currentColor = 1;
     selectedPiece = nullptr;
     targetPiece = nullptr;
 }
@@ -106,12 +111,7 @@ GameScreen::~GameScreen() {
 }
 
 void GameScreen::updateCurrentPlayerText() {
-    if (currentColor == 0) {
-        currentPlayerText.setString("Ход белых");
-    }
-    else {
-        currentPlayerText.setString("Ход черных");
-    }
+    currentPlayerText.setString(currentColor ? "White's turn" : "Black's turn");
 }
 
 Piece* GameScreen::getPiece(int col, int row) {
@@ -123,35 +123,35 @@ Piece* GameScreen::getPiece(int col, int row) {
     return nullptr;
 }
 
-bool GameScreen::canMakeMove(int col, int row) {
-    if (!selectedPiece)
+bool GameScreen::canMakeMove(Piece* piece, int col, int row) {
+    if (!piece)
         return false;
 
-    if (!selectedPiece->isValidMove(col, row))
+    if (!piece->isValidMove(col, row))
         return false;
 
-    if (pieceOnAStraightLine(col, row))
+    if (pieceOnAStraightLine(piece, col, row))
         return false;
 
-    if (pieceOnADiagonalLine(col, row))
+    if (pieceOnADiagonalLine(piece, col, row))
         return false;
 
     targetPiece = getPiece(col, row);
 
-    if (targetPiece && (targetPiece == selectedPiece || targetPiece->color == selectedPiece->color))
+    if (targetPiece && (targetPiece == piece || targetPiece->color == piece->color))
         return false;
 
-    sf::Vector2f originalPosition = selectedPiece->getPosition();
+    sf::Vector2f originalPosition = piece->getPosition();
     Piece* originalTarget = (Piece*)targetPiece;
 
-    selectedPiece->setPosition(sf::Vector2f(col * 100, row * 100));
+    piece->setPosition(sf::Vector2f(col * 100, row * 100));
     if (targetPiece) 
         takePiece(targetPiece);
 
     bool kingInCheck = isKingInCheck();
 
     // Откатить изменения
-    selectedPiece->setPosition(originalPosition);
+    piece->setPosition(originalPosition);
     if (originalTarget) board.push_back(originalTarget);
 
     return !kingInCheck;
@@ -165,6 +165,7 @@ bool GameScreen::movePawn(int newCol, int newRow) {
     int prevCol = selectedPiece->getCol();
     int prevRow = selectedPiece->getRow();
     bool firstMove = currentColor ? prevRow == 6: prevRow == 1 ;
+    bool willTakePiece = false;
 
     if (std::abs(newCol - prevCol) > 1
         || (currentColor ? prevRow <= newRow : prevRow >= newRow))
@@ -195,7 +196,6 @@ bool GameScreen::movePawn(int newCol, int newRow) {
 
         if (hittingPiece->color == selectedPiece->color)
             return false;
-        takePiece(hittingPiece);
     }
 
     // Временное выполнение хода
@@ -219,7 +219,7 @@ bool GameScreen::movePawn(int newCol, int newRow) {
 
     // Превращение пешки
     if ((currentColor == 0 && newRow == 7) || (currentColor == 1 && newRow == 0)) {
-        board.erase(std::remove(board.begin(), board.end(), selectedPiece), board.end());
+        takePiece(selectedPiece);
         board.push_back(new Queen(currentColor, sf::Vector2f(newCol * 100, newRow * 100)));
     }
 
@@ -234,7 +234,7 @@ bool GameScreen::handleCastling(int newCol, int newRow) {
     Piece* castlingPiece = nullptr;
 
     // Вправо
-    if (newCol == (prevCol + 2) && newRow == prevRow && !pieceOnAStraightLine(newCol, newRow)) {
+    if (newCol == (prevCol + 2) && newRow == prevRow && !pieceOnAStraightLine(selectedPiece, newCol, newRow)) {
         for (auto piece : board) {
             if (piece->getCol() == (newCol + 1) && piece->getRow() == (newRow) && piece->isFirstMove()) {
                 castlingPiece = piece;
@@ -244,7 +244,7 @@ bool GameScreen::handleCastling(int newCol, int newRow) {
     }
 
     // Влево
-    if (newCol == (prevCol - 2) && newRow == prevRow && !pieceOnAStraightLine(newCol-1, newRow)) {
+    if (newCol == (prevCol - 2) && newRow == prevRow && !pieceOnAStraightLine(selectedPiece, newCol-1, newRow)) {
         for (auto piece : board) {
             if (piece->getCol() == (newCol - 2) && piece->getRow() == (newRow) && piece->isFirstMove()) {
                 castlingPiece = piece;
@@ -285,32 +285,32 @@ void GameScreen::takePiece(Piece* targetPiece) {
     ));
 }
 
-bool GameScreen::pieceOnAStraightLine(int newCol, int newRow) {
-    if (selectedPiece == nullptr)
+bool GameScreen::pieceOnAStraightLine(Piece* currentPiece, int newCol, int newRow) {
+    if (currentPiece == nullptr)
         return false;
 
-    if (selectedPiece->getRow() == newRow) {
+    if (currentPiece->getRow() == newRow) {
         // при движении влево
-        for (int col = selectedPiece->getCol() - 1; col > newCol; col--)
+        for (int col = currentPiece->getCol() - 1; col > newCol; col--)
             for (auto piece : board)
                 if (piece->getCol() == col && piece->getRow() == newRow)
                     return true;
 
         // при движении вправо
-        for (int col = selectedPiece->getCol() + 1; col < newCol; col++)
+        for (int col = currentPiece->getCol() + 1; col < newCol; col++)
             for (auto piece : board)
                 if (piece->getCol() == col && piece->getRow() == newRow)
                     return true;
     }
-    else if (selectedPiece->getCol() == newCol) {
+    else if (currentPiece->getCol() == newCol) {
         // при движении вверх
-        for (int row = selectedPiece->getRow() - 1; row > newRow; row--)
+        for (int row = currentPiece->getRow() - 1; row > newRow; row--)
             for (auto piece : board)
                 if (piece->getRow() == row && piece->getCol() == newCol)
                     return true;
 
         // при движении вниз
-        for (int row = selectedPiece->getRow() + 1; row < newRow; row++)
+        for (int row = currentPiece->getRow() + 1; row < newRow; row++)
             for (auto piece : board)
                 if (piece->getCol() == newCol && piece->getRow() == row)
                     return true;
@@ -319,12 +319,12 @@ bool GameScreen::pieceOnAStraightLine(int newCol, int newRow) {
     return false;
 }
 
-bool GameScreen::pieceOnADiagonalLine(int newCol, int newRow) {
-    if (selectedPiece == nullptr)
+bool GameScreen::pieceOnADiagonalLine(Piece* currentPiece, int newCol, int newRow) {
+    if (currentPiece == nullptr)
         return false;
 
-    int prevCol = selectedPiece->getCol();
-    int prevRow = selectedPiece->getRow();
+    int prevCol = currentPiece->getCol();
+    int prevRow = currentPiece->getRow();
 
     if (prevCol == newCol || prevRow == newRow) {
 
@@ -369,21 +369,6 @@ bool GameScreen::pieceOnADiagonalLine(int newCol, int newRow) {
     return false;
 }
 
-bool GameScreen::kingIllegalMoveDetected(int newCol, int newRow) {
-    King* originalSelectedPiece = (King*)selectedPiece;
-
-    for (auto piece : board) {
-        selectedPiece = piece;
-        if (piece->color != currentColor && canMakeMove(newCol, newRow)) {
-            selectedPiece = originalSelectedPiece;
-            return true;
-        }
-    }
-
-    selectedPiece = originalSelectedPiece;
-    return false;
-}
-
 bool GameScreen::isKingInCheck() {
     Piece* king = nullptr;
     
@@ -398,16 +383,12 @@ bool GameScreen::isKingInCheck() {
         return false;
     }
 
-    Piece* originalSelectedPiece = (Piece*)selectedPiece;
     for (auto piece : board) {
-        selectedPiece = piece;
-        if (piece->color != currentColor && canMakeMove(king->getCol(), king->getRow())) {
-            selectedPiece = originalSelectedPiece;
+        if (piece->color != currentColor && canMakeMove(piece, king->getCol(), king->getRow())) {
             return true;
         }
     }
 
-    selectedPiece = originalSelectedPiece;
     return false;
 }
 
@@ -422,20 +403,19 @@ bool GameScreen::isCheckmate() {
         int originalCol = piece->getCol();
         int originalRow = piece->getRow();
         sf::Vector2f originalPosition = piece->getPosition();
-        selectedPiece = piece;
 
         for (int col = 0; col < 8; col++) {
             for (int row = 0; row < 8; row++) {
-                if (!canMakeMove(col, row))
+                if (!canMakeMove(piece, col, row))
                     continue;
 
                 Piece* target = getPiece(col, row);
-                selectedPiece->setPosition(sf::Vector2f(col * 100, row * 100));
-                if (target) board.erase(std::remove(board.begin(), board.end(), target), board.end());
+                piece->setPosition(sf::Vector2f(col * 100, row * 100));
+                if (target) takePiece(target);
 
                 bool stillInCheck = isKingInCheck();
 
-                selectedPiece->setPosition(originalPosition);
+                piece->setPosition(originalPosition);
                 if (target) board.push_back(target);
 
                 if (!stillInCheck) return false;
@@ -444,6 +424,10 @@ bool GameScreen::isCheckmate() {
     }
 
     return true;
+}
+
+std::string GameScreen::getEndGameMessage() {
+    return isCheckmate() ? (currentColor ? "Black won." : "White won.") : "Game over.";
 }
 
 void GameScreen::handleMousePressed(const sf::Vector2f& mousePos) {
@@ -468,16 +452,12 @@ void GameScreen::handleMouseReleased(const sf::Vector2f& mousePos) {
     int newCol = static_cast<int>(mousePos.x / 100);
     int newRow = static_cast<int>(mousePos.y / 100);
 
-    if (selectedPiece->getType() == "King" && kingIllegalMoveDetected(newCol, newRow)) {
-        return;
-    }
-
     if (selectedPiece->getType() == "Pawn") {
         movePawn(newCol, newRow);
     }
     else if (selectedPiece->getType() == "King" && selectedPiece->isFirstMove()) {
         if (!handleCastling(newCol, newRow)) {
-            if (canMakeMove(newCol, newRow)) {
+            if (canMakeMove(selectedPiece, newCol, newRow)) {
                 takePiece(targetPiece);
                 selectedPiece->setPosition(sf::Vector2f(newCol * 100, newRow * 100));
                 currentColor = !currentColor;
@@ -485,7 +465,7 @@ void GameScreen::handleMouseReleased(const sf::Vector2f& mousePos) {
             }
         }
     }
-    else if (canMakeMove(newCol, newRow)) {
+    else if (canMakeMove(selectedPiece, newCol, newRow)) {
         takePiece(targetPiece);
         selectedPiece->setPosition(sf::Vector2f(newCol*100, newRow*100));
         currentColor = !currentColor;
@@ -493,11 +473,9 @@ void GameScreen::handleMouseReleased(const sf::Vector2f& mousePos) {
     }
 
     if (isKingInCheck()) {
-        std::cout << "Check for king:  " << (currentColor ? "black" : "white") << "!\n";
-    }
-
-    if (isCheckmate()) {
-        std::cout << "Мат! Победили " << (currentColor ? "чёрные" : "белые") << "!\n";
+        if (isCheckmate()) {
+            isGameOver = true;
+        }
     }
 
     isDragging = false;
