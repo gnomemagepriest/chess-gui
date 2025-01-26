@@ -326,7 +326,7 @@ bool GameScreen::pieceOnADiagonalLine(Piece* currentPiece, int newCol, int newRo
     int prevCol = currentPiece->getCol();
     int prevRow = currentPiece->getRow();
 
-    if (prevCol == newCol || prevRow == newRow) {
+    if (std::abs(newCol - prevCol) == std::abs(newRow - prevRow)) {
 
         if (newRow < prevRow) {
             // Влево вверх
